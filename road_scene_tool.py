@@ -128,61 +128,79 @@ class RoadSceneApp:
 
     def _draw_merge_road(self) -> None:
         self._draw_straight_road()
-        ramp_start_x = CANVAS_WIDTH - 360
-        ramp_end_x = CANVAS_WIDTH - 40
-        ramp_top = ROAD_MARGIN - 50
-        ramp_bottom = ROAD_MARGIN + 40
+        merge_start_x = CANVAS_WIDTH - 560
+        merge_end_x = CANVAS_WIDTH - 40
+        outer_edge = [
+            (merge_start_x, ROAD_MARGIN - 45),
+            (merge_start_x + 140, ROAD_MARGIN - 80),
+            (merge_start_x + 300, ROAD_MARGIN - 55),
+            (merge_end_x, ROAD_MARGIN - 25),
+        ]
+        inner_edge = [
+            (merge_start_x, ROAD_MARGIN + 30),
+            (merge_start_x + 140, ROAD_MARGIN + 10),
+            (merge_start_x + 300, ROAD_MARGIN),
+            (merge_end_x, ROAD_MARGIN + 12),
+        ]
+        ramp_polygon = self._flatten_points(outer_edge + list(reversed(inner_edge)))
         self.canvas.create_polygon(
-            ramp_start_x,
-            ramp_bottom,
-            ramp_end_x,
-            ROAD_MARGIN + 20,
-            ramp_end_x,
-            ramp_top,
-            ramp_start_x,
-            ramp_top + 20,
+            *ramp_polygon,
             fill="#f5f5f5",
             outline=LANE_COLOR,
             width=3,
+            smooth=True,
         )
         self.canvas.create_line(
-            ramp_start_x + 20,
-            ramp_bottom - 10,
-            ramp_end_x - 20,
-            ROAD_MARGIN + 10,
+            *self._flatten_points(inner_edge),
             fill=LANE_MARK_COLOR,
             width=2,
-            dash=(12, 10),
+            dash=(14, 10),
+            smooth=True,
         )
 
     def _draw_exit_road(self) -> None:
         self._draw_straight_road()
-        ramp_start_x = CANVAS_WIDTH - 420
-        ramp_end_x = CANVAS_WIDTH - 40
-        ramp_top = ROAD_MARGIN - 80
-        ramp_bottom = ROAD_MARGIN + 10
+        split_x = CANVAS_WIDTH - 520
+        exit_end_x = CANVAS_WIDTH - 40
+        outer_edge = [
+            (split_x, ROAD_MARGIN - 10),
+            (split_x + 160, ROAD_MARGIN - 55),
+            (split_x + 320, ROAD_MARGIN - 95),
+            (exit_end_x, ROAD_MARGIN - 115),
+        ]
+        inner_edge = [
+            (split_x, ROAD_MARGIN + 40),
+            (split_x + 160, ROAD_MARGIN + 8),
+            (split_x + 320, ROAD_MARGIN - 20),
+            (exit_end_x, ROAD_MARGIN - 35),
+        ]
+        ramp_polygon = self._flatten_points(outer_edge + list(reversed(inner_edge)))
         self.canvas.create_polygon(
-            ramp_start_x,
-            ROAD_MARGIN + 40,
-            ramp_end_x,
-            ramp_bottom,
-            ramp_end_x,
-            ramp_top,
-            ramp_start_x,
-            ROAD_MARGIN + 10,
+            *ramp_polygon,
             fill="#f5f5f5",
             outline=LANE_COLOR,
             width=3,
+            smooth=True,
         )
         self.canvas.create_line(
-            ramp_start_x + 20,
-            ROAD_MARGIN + 30,
-            ramp_end_x - 20,
-            ramp_top + 12,
+            *self._flatten_points(inner_edge),
             fill=LANE_MARK_COLOR,
             width=2,
-            dash=(12, 10),
+            dash=(14, 10),
+            smooth=True,
         )
+        self.canvas.create_line(
+            split_x,
+            ROAD_MARGIN + 40,
+            split_x + 60,
+            ROAD_MARGIN + 8,
+            fill=LANE_COLOR,
+            width=3,
+        )
+
+    @staticmethod
+    def _flatten_points(points: list[tuple[float, float]]) -> list[float]:
+        return [coord for point in points for coord in point]
 
     def _draw_vehicle(self, vehicle: Vehicle) -> None:
         width = 70
